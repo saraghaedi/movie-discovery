@@ -1,32 +1,44 @@
 import React from "react";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MovieItem from "../components/MovieItem";
+import { useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function DiscoverMoviesPage() {
+  const route_params = useParams();
+
+  const history = useHistory();
   const [title, setTitle] = useState("");
   const [searchState, setsearchState] = useState({ state: "idle", data: [] });
 
-  const search = async () => {
-    if (title === "") {
+  const search = async (searchTerm) => {
+    if (!searchTerm) {
       setsearchState("idle");
       return;
     }
-    console.log("Start searching for:", title);
     setsearchState({ state: "Searching" });
-    const queryParam = encodeURIComponent(title);
+    const queryParam = encodeURIComponent(searchTerm);
     try {
       const response = await axios.get(
         `https://omdbapi.com/?apikey=a3dcea5d&s=${queryParam}`
       );
-      console.log("Success!", response.data.Search);
       setsearchState({ state: "done", data: response.data.Search });
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  console.log("***********", searchState);
+  const navigateToSearch = () => {
+    const routeParam = encodeURIComponent(title);
+    history.push(`/discover/${routeParam}`);
+  };
+
+  useEffect(() => {
+    search(route_params.searchtext);
+    // setTitle(route_params.searchtext);
+  }, [route_params.searchtext]);
+
   return (
     <div>
       <h1>Discover some movies!</h1>
@@ -41,8 +53,8 @@ export default function DiscoverMoviesPage() {
         ></input>{" "}
         <button
           onClick={() => {
-            search();
-            setTitle("");
+            navigateToSearch();
+            search(title);
           }}
         >
           Search

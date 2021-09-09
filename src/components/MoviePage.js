@@ -13,7 +13,6 @@ export default function MoviePage() {
       const response = await axios.get(
         `https://omdbapi.com/?apikey=a3dcea5d&i=${route_params.imdb_id}`
       );
-      console.log(response.data);
       set_movieData(response.data);
     }
     fetchData();
